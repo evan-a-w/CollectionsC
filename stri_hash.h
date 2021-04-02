@@ -12,12 +12,23 @@ typedef struct StriHash {
     int (*hash_func)(char* str, int capacity);
 } hash_stri;
 
+// Creates a hash map with a given capacity.
 hash_stri *hash_stri_init(int capacity);
+
+// Frees the entire hash map
 void hash_stri_free(hash_stri *t);
+
+// Resizes a hash map to double the capacity plus one, and returns a pointer.
 hash_stri *hash_stri_resize(hash_stri *t);
 
+// Sets res to the value corresponding to the key (if it exists). Returns 1 if
+// a value is found, 0 if not.
 int hash_stri_get(hash_stri *t, char *key, int *res);
+
+// Sets the value corresponding to the key.
 hash_stri *hash_stri_set(hash_stri *t, char *key, int val);
+
+// This is only used in the resize function for performance reasons.
 void hash_stri_set_nocopy(hash_stri *t, pstri_node *p);
 
 typedef struct PairStrInt {
