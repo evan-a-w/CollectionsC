@@ -5,6 +5,21 @@
 
 #define HASH_DEFAULT 3217
 
+typedef struct StriHash {
+    pstri_node **arr;
+    int capacity;
+    int size;
+    int (*hash_func)(char* str, int capacity);
+} hash_stri;
+
+hash_stri *hash_stri_init(int capacity);
+void hash_stri_free(hash_stri *t);
+hash_stri *hash_stri_resize(hash_stri *t);
+
+int hash_stri_get(hash_stri *t, char *key, int *res);
+hash_stri *hash_stri_set(hash_stri *t, char *key, int val);
+void hash_stri_set_nocopy(hash_stri *t, pstri_node *p);
+
 typedef struct PairStrInt {
     char *str;
     int val;
@@ -43,17 +58,3 @@ pstri_node *pstri_node_reverse(pstri_node *head);
 
 int default_hash_func(char *str, int capacity);
 
-typedef struct StriHash {
-    pstri_node **arr;
-    int capacity;
-    int size;
-    int (*hash_func)(char* str, int capacity);
-} hash_stri;
-
-hash_stri *hash_stri_init(int capacity);
-void hash_stri_free(hash_stri *t);
-hash_stri *hash_stri_resize(hash_stri *t);
-
-int hash_stri_get(hash_stri *t, char *key, int *res);
-hash_stri *hash_stri_set(hash_stri *t, char *key, int val);
-void hash_stri_set_nocopy(hash_stri *t, pstri_node *p);
