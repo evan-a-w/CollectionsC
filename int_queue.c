@@ -30,6 +30,11 @@ void free_list(Node head) {
     free(prev);
 }
 
+void free_queue(Queue q) {
+    free_list(q->list);
+    free(q);
+}
+
 Queue create_queue() {
     Queue res = malloc(sizeof(struct queue));
     res->size = 0;
@@ -40,7 +45,6 @@ Queue create_queue() {
 
 void push(Queue s, int val) {
     Node new = create_node(val);
-    s->list = new;
     s->end->next = new;
     s->end = new;
     s->size++;
