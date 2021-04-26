@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 typedef struct node {
     int data;
@@ -46,12 +46,15 @@ Queue create_queue() {
 
 void push(Queue s, int val) {
     Node new = create_node(val);
-    if (s->end == NULL)
+    if (s->end == NULL) {
+        s->end = new;
         s->list = new;
-    else
+        s->size++;
+    } else {
         s->end->next = new;
-    s->end = new;
-    s->size++;
+        s->end = new;
+        s->size++;
+    }
 }
 
 int pop(Queue s) {
@@ -65,4 +68,13 @@ int pop(Queue s) {
     free(tmp);
     s->size--;
     return res;
+}
+
+int main(void) {
+    Queue q = create_queue();
+    push(q,1);
+    push(q,2);
+    push(q,3);
+    while (q->size != 0) printf("%d\n", pop(q));
+
 }
