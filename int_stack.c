@@ -60,3 +60,8 @@ int pop(Stack s) {
     s->size--;
     return res;
 }
+
+int peek(Stack s) {
+    if (s->list == NULL) return 0;
+    return s->list->data;
+}
