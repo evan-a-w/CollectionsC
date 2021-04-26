@@ -22,14 +22,12 @@
             vec->size++;\
         }\
     }\
-    TYPE TYPE##_pop(TYPE##_vec *vec, int *succ) {\
+    TYPE TYPE##_pop(TYPE##_vec *vec) {\
         if (vec->size > 0) {\
             TYPE ret = vec->arr[vec->size - 1];\
             vec->size--;\
-            *succ = 1;\
             return ret;\
         } else {\
-            *succ = 0;\
             return vec->arr[0];\
         }\
     }\
@@ -62,14 +60,12 @@
             vec->size++;\
         }\
     }\
-    TYPE * TYPE##_ppop(TYPE##_pvec *vec, int *succ) {\
+    TYPE * TYPE##_ppop(TYPE##_pvec *vec) {\
         if (vec->size > 0) {\
             TYPE * ret = vec->arr[vec->size - 1];\
             vec->size--;\
-            *succ = 1;\
             return ret;\
         } else {\
-            *succ = 0;\
             return vec->arr[0];\
         }\
     }\
