@@ -34,6 +34,13 @@
     void TYPE##_vfree(TYPE##_vec *vec) {\
         free(vec->arr);\
         free(vec);\
+    }\
+    TYPE TYPE##_peek(TYPE##_vec *vec) {\
+        if (vec->size > 0) {\
+            return vec->arr[vec->size - 1];\
+        } else {\
+            return vec->arr[0];\
+        }\
     }
 
 #define PVEC_CREATE(TYPE) \
@@ -75,4 +82,11 @@
         }\
         free(vec->arr);\
         free(vec);\
+    }
+    TYPE * TYPE##_ppop(TYPE##_pvec *vec) {\
+        if (vec->size > 0) {\
+            return vec->arr[vec->size - 1];\
+        } else {\
+            return vec->arr[0];\
+        }\
     }
