@@ -82,7 +82,7 @@
         }\
         free(vec->arr);\
         free(vec);\
-    }
+    }\
     TYPE * TYPE##_ppop(TYPE##_pvec *vec) {\
         if (vec->size > 0) {\
             return vec->arr[vec->size - 1];\
