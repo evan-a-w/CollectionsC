@@ -36,6 +36,11 @@ Stack create_stack() {
     return res;
 }
 
+void free_stack(Stack s) {
+    free_list(s->list);
+    free(s);
+}
+
 void push(Stack s, int val) {
     Node new = create_node(val);
     new->next = s->list;
@@ -54,4 +59,9 @@ int pop(Stack s) {
     free(tmp);
     s->size--;
     return res;
+}
+
+int peek(Stack s) {
+    if (s->list == NULL) return 0;
+    return s->list->data;
 }

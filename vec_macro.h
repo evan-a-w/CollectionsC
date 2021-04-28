@@ -22,20 +22,24 @@
             vec->size++;\
         }\
     }\
-    TYPE TYPE##_pop(TYPE##_vec *vec, int *succ) {\
+    TYPE TYPE##_pop(TYPE##_vec *vec) {\
         if (vec->size > 0) {\
             TYPE ret = vec->arr[vec->size - 1];\
             vec->size--;\
-            *succ = 1;\
             return ret;\
         } else {\
-            *succ = 0;\
             return vec->arr[0];\
         }\
     }\
     void TYPE##_vfree(TYPE##_vec *vec) {\
         free(vec->arr);\
         free(vec);\
+    }\
+    TYPE TYPE##_peek(TYPE##_vec *vec) {\
+        if (vec->size > 0) {\
+            return vec->arr[vec->size - 1];\
+        }\
+        return vec->arr[0];\
     }
 
 #define PVEC_CREATE(TYPE) \
@@ -62,14 +66,12 @@
             vec->size++;\
         }\
     }\
-    TYPE * TYPE##_ppop(TYPE##_pvec *vec, int *succ) {\
+    TYPE * TYPE##_ppop(TYPE##_pvec *vec) {\
         if (vec->size > 0) {\
             TYPE * ret = vec->arr[vec->size - 1];\
             vec->size--;\
-            *succ = 1;\
             return ret;\
         } else {\
-            *succ = 0;\
             return vec->arr[0];\
         }\
     }\
@@ -79,4 +81,10 @@
         }\
         free(vec->arr);\
         free(vec);\
+    }\
+    TYPE * TYPE##_ppop(TYPE##_pvec *vec) {\
+        if (vec->size > 0) {\
+            return vec->arr[vec->size - 1];\
+        }\
+        return vec->arr[0];\
     }

@@ -1,6 +1,50 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define VEC_CREATE(TYPE) \
+    typedef struct TYPE##_Vec {\
+        TYPE * arr;\
+        int size;\
+        int capacity;\
+    } TYPE##_vec;\
+    TYPE##_vec * TYPE##_vinit(int start_cap) {\
+        TYPE##_vec *vec = (TYPE##_vec *) malloc(sizeof(TYPE##_vec)); \
+        vec->arr = (TYPE *) malloc(start_cap * sizeof(TYPE));\
+        vec->capacity = start_cap;\
+        vec->size = 0;\
+        return vec;\
+    }\
+    void TYPE##_push(TYPE##_vec *vec, TYPE val) {\
+        if (vec->size < vec->capacity) {\
+            (vec->arr)[vec->size] = val;\
+            vec->size++;\
+        } else {\
+            (vec->arr) = (TYPE *) realloc(vec->arr, vec->capacity * 2 * sizeof(TYPE));\
+            vec->capacity *= 2;\
+            (vec->arr)[vec->size] = val;\
+            vec->size++;\
+        }\
+    }\
+    TYPE TYPE##_pop(TYPE##_vec *vec) {\
+        if (vec->size > 0) {\
+            TYPE ret = vec->arr[vec->size - 1];\
+            vec->size--;\
+            return ret;\
+        } else {\
+            return vec->arr[0];\
+        }\
+    }\
+    void TYPE##_vfree(TYPE##_vec *vec) {\
+        free(vec->arr);\
+        free(vec);\
+    }\
+    TYPE TYPE##_peek(TYPE##_vec *vec) {\
+        if (vec->size > 0) {\
+            return vec->arr[vec->size - 1];\
+        }\
+        return vec->arr[0];\
+    }
+
 typedef struct node {
     int data;
     struct node *next;
@@ -13,7 +57,6 @@ void insert_pos(Node, int);
 int remove_pos(Node, int);
 void traverse_node(Node);
 Node reverse_node(Node);
-int get_nth_last(int n, Node head);
 
 // Sorting - cmp should return 1 if the left int should go before the right,
 // 0 if it doesn't matter, and -1 if it should go after.
@@ -41,6 +84,7 @@ Node alt_create(Node next, int data) {
 
 void free_node(Node head) {
     if (head == NULL) return;
+    Node curr = head->next;
     Node prev = head;
     for (Node curr = head->next; curr != NULL; prev = curr, curr = curr->next)
         free(prev); 
@@ -102,57 +146,17 @@ Node reverse_node(Node head) {
     return curr;
 }
 
-// Sorting
-
-int default_cmp(int l, int r) {
-    if (l < r) return 1;
-    else if (l == r) return 0;
-    else return -1;
-}
-
-void bubble_sort(Node head, int(*cmp)(int, int)) {
-    if (head == NULL || head->next == NULL) return;
-    int sorted = 0;
-
-    // Keep doing the business.
-    while (!sorted) {
-        sorted = 1;
-        Node prev = NULL;
-        Node curr = head;
-        Node next = head->next; 
-        for (;next != NULL;prev=curr,curr=next,next=next->next) {
-            int c = cmp(curr->data, next->data);
-            if (c == -1) {
-                sorted = 0;
-                if (prev != NULL) prev->next = next;
-                curr->next = next->next;
-                next->next = curr;
-            }
-        }
-    }
-}
-
-int get_nth_last(int n, struct node *head) {
-    if (head == NULL) return 0;
-    int l = 0;
-    Node curr;
-    for (curr = head; curr != NULL; curr = curr->next) l++;
-    int des_pos = l - n;
-    int i = 0;
-    for (curr = head; i < des_pos && curr != NULL; curr = curr->next, i++);
-    return curr->data;
-}
+VEC_CREATE(Node)
 
 int main(void) {
-    Node head = alt_create(NULL, 4);
-    head = alt_create(head, 6); 
-    head = alt_create(head, 3);
-    head = alt_create(head, 8);
-    head = alt_create(head, 1);
-    traverse_node(head);
-
-    printf("\nAbout to sort...\n");
-    bubble_sort(head, default_cmp);
-
-    traverse_node(head);
+    Node head = create_node(1);
+    head->next = create_node(2);
+    head->next->next = create_node(3);
+    Node_vec *v = Node_vinit(5);
+    for (Node c = head; c != NULL; c = c->next) {
+        Node_push(v, c);
+    }
+    for (int i = 0; i < v->size; i++) printf("%d\n", v->arr[i]->data);
+    Node_vfree(v);
+    free_node(head);
 }
