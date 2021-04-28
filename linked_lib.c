@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <vec_macro.h>
 
 typedef struct node {
     int data;
@@ -141,6 +142,99 @@ int get_nth_last(int n, struct node *head) {
     int i = 0;
     for (curr = head; i < des_pos && curr != NULL; curr = curr->next, i++);
     return curr->data;
+}
+
+Node getIntersectionNode(Node headA, Node headB) {
+    Node currA = headA;
+    Node currB;
+    while (currA != NULL) {
+        currB = headB;
+        while (currB != NULL && currB != currA) {
+            currB = currB->next;
+        }
+        if (currB == currA) {
+            return currB;
+        }
+        currA = currA->next;
+    }
+    return NULL;
+}
+
+Node middleNode(Node head){
+    if (head == NULL || head->next == NULL) return head;
+    int depth = 1;
+    for (Node curr = head->next; curr != NULL; curr = curr->next) {
+        depth++;
+        Node new = curr;
+        for (int c = 0; new != NULL && c < depth; new = new->next, c++);
+        if (new == NULL) return curr;
+    }
+    return head;
+}
+
+Node reverseBetween(Node head, int left, int right){
+    if (left == right) {
+        return head;
+    }
+    Node before_left = head;
+    Node nleft = head;
+    Node nright = head;
+    // Get to the left node and right nodes.
+    for (int i = 1; nright->next != NULL && i < right; i++) {
+        nright = nright->next;
+        if (i < left) nleft = nright;
+        if (i < left - 1) before_left = nright;
+    }
+    Node after_right = nright->next;
+
+    Node prev = after_right;
+    Node curr = nleft;
+    while (curr->next != after_right) {
+        Node tmp = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = tmp;
+    }
+    curr->next = prev;
+    if (nleft != before_left) {
+        before_left->next = curr;
+        return head;
+    }
+    return nright;
+}
+
+int hasCycle(struct node *head) {
+    if (head == NULL || head->next == NULL) return 0;
+    Node curr = head;
+    Node next = head;
+    while (next != NULL && next->next != NULL) {
+        curr = curr->next;
+        next = next->next->next;
+        if (next == curr) return 1;
+    }
+
+    return 0;
+}
+
+VEC_CREATE(Node);
+
+struct node *getIntersectionNode(struct node *headA, struct node *headB) {
+    Node_vec *vec = Node_vinit(30);
+    struct node *currA = headA;
+    for (Node currB = headB; currB != NULL; currB = currB->next) {
+        Node_push(vec, currB);
+    }
+    for (; currA != NULL; currA = currA->next) {
+        int i = 0;
+        for (; i < vec->size && (vec->arr[i] != currA); i++);
+        if (vec->arr[i] == currA) {
+            Node res = vec->arr[i];
+            Node_vfree(vec);
+            return res;
+        }
+    }
+    Node_vfree(vec);
+    return NULL;
 }
 
 int main(void) {
