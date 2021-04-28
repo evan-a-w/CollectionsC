@@ -13,6 +13,7 @@ void insert_pos(Node, int);
 int remove_pos(Node, int);
 void traverse_node(Node);
 Node reverse_node(Node);
+int get_nth_last(int n, Node head);
 
 // Sorting - cmp should return 1 if the left int should go before the right,
 // 0 if it doesn't matter, and -1 if it should go after.
@@ -130,6 +131,17 @@ void bubble_sort(Node head, int(*cmp)(int, int)) {
             }
         }
     }
+}
+
+int get_nth_last(int n, struct node *head) {
+    if (head == NULL) return 0;
+    int l = 0;
+    Node curr;
+    for (curr = head; curr != NULL; curr = curr->next) l++;
+    int des_pos = l - n;
+    int i = 0;
+    for (curr = head; i < des_pos && curr != NULL; curr = curr->next, i++);
+    return curr->data;
 }
 
 int main(void) {
