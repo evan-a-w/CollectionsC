@@ -22,18 +22,6 @@ void free_string(String *str);
 char *removeDuplicates(char *S);
 void reverseString(char* s, int sSize);
 
-// Random array funcs
-int max_sub_array(int *nums, int numsSize);
-
-String *create_string(int capacity) {
-    String *new = malloc(sizeof(String));
-    new->capacity = capacity;
-    new->size = 0;
-    new->str = calloc(capacity + 1, sizeof(char));
-    new->str[0] = '\0';
-    return new;
-}
-
 void str_push_back(String *str, char ch) {
     if (str->size >= str->capacity) {
         str->capacity *= 3;
@@ -51,6 +39,19 @@ void free_string(String *str) {
     free(str->str);
     free(str);
 }
+
+// Random array funcs
+int max_sub_array(int *nums, int numsSize);
+
+String *create_string(int capacity) {
+    String *new = malloc(sizeof(String));
+    new->capacity = capacity;
+    new->size = 0;
+    new->str = calloc(capacity + 1, sizeof(char));
+    new->str[0] = '\0';
+    return new;
+}
+
 
 int max_sub_array(int* nums, int numsSize){
     if (numsSize == 0) return 0;
