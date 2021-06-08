@@ -2,10 +2,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "vec_macro.h"
 #include <string.h>
 #include <assert.h>
 #include "bcd.h"
+#include <stdbool.h>
+#include "vec_macro.h"
+
+VEC_CREATE(char)
+
+enum eq {LT, EQ, GT};
 
 bcd int_to_bcd(int n)
 {
@@ -102,39 +107,141 @@ bcd raw_int_to_bcd(int n) {
     return res;
 }
 
-int main(void)
+bool bcd_eq(bcd n1, bcd n2)
 {
-    bcd n1 = str_to_bcd("123456789123456789");
-    bcd n2 = str_to_bcd("123456789123456789");    
-    bcd n3 = bcd_add(n1, n2);
-    print_bcd(n3);
-    bcd_free(n1);
-    bcd_free(n2);
-    bcd_free(n3);
+    if (n1->size != n2->size)
+    {
+        return false;
+    }
 
-    n1 = str_to_bcd("987654321987654321987654321");
-    n2 = str_to_bcd("98765987659876598765");
-    n3 = bcd_add(n1, n2);
-    print_bcd(n3);
-    bcd_free(n1);
-    bcd_free(n2);
-    bcd_free(n3);
+    for (int i = 0; i < n1->size; i++)
+    {
+        if (n1->arr[i] != n2->arr[i])
+        {
+            return false; 
+        } 
+    }
 
-    n1 = str_to_bcd("1");
-    n2 = str_to_bcd("256");
-    n3 = bcd_add(n1, n2);
-    print_bcd(n3);
-    bcd_free(n1);
-    bcd_free(n2);
-    bcd_free(n3);
+    return true;
+}
 
-    n1 = int_to_bcd(1378420);
-    print_bcd(n1);
-    bcd_free(n1);
+bool bcd_lt(bcd n1, bcd n2)
+{
+    if (n1->size > n2->size)
+    {
+        return false;
+    } else if (n1->size < n2->size)
+    {
+        return true; 
+    }
 
-    n1 = raw_int_to_bcd(258);
-    print_bcd(n1);
-    bcd_free(n1);
-    
-    return 0;
+    int i;
+    for (i = 0; i < n1->size; i++)
+    {
+        if (n1->arr[i] > n2->arr[i])
+        {
+            return false;
+        } 
+    }
+
+    return (n1->arr[i] == n2->arr[i]) ? false : true;
+}
+
+bool bcd_le(bcd n1, bcd n2)
+{
+    if (n1->size > n2->size)
+    {
+        return false;
+    } else if (n1->size < n2->size)
+    {
+        return true; 
+    }
+
+    int i;
+    for (i = 0; i < n1->size; i++)
+    {
+        if (n1->arr[i] > n2->arr[i])
+        {
+            return false;
+        } 
+    }
+
+    return true;
+}
+
+bool bcd_gt(bcd n1, bcd n2)
+{
+    return !(bcd_le(n1, n2));
+}
+
+bool bcd_ge(bcd n1, bcd n2)
+{
+    return !(bcd_lt(n1, n2));
+}
+
+void bcd_add_inplace(bcd n1, bcd n2)
+{
+    enum eq ord;
+    if (n1->size < n2->size)
+    {
+        ord = LT;
+    } else if (n1->size == n2->size)
+    {
+        ord = EQ; 
+    } else
+    {
+        ord = GT; 
+    }
+
+    int least_size = (n1->size <= n2->size) ? n1->size : n2->size;
+    int max_size = (n1->size <= n2->size) ? n2->size : n1->size;
+    int carry = 0;
+    int i;
+    for (i = 0; i < least_size; i++)
+    {
+        n1->arr[i] += n2->arr[i] + carry;
+        carry = 0;
+        if (n1->arr[i] > 9)
+        {
+            carry = 1; 
+            n1->arr[i] %= 10;
+        }
+    }
+
+    if (ord != EQ)
+    {
+        for (; i < max_size; i++)
+        {
+            switch (ord)
+            {
+                case LT:
+                {
+                    int curr_dig = n2->arr[i] + carry;
+                    carry = 0;
+                    if (curr_dig > 9)
+                    {
+                        carry = 1; 
+                        curr_dig %= 10;
+                    }
+                    char_push(n1, curr_dig);
+                    break; 
+                }
+                case GT:
+                {
+                    n1->arr[i] += carry;
+                    carry = 0;
+                    if (n1->arr[i] > 9)
+                    {
+                        n1->arr[i] %= 10;
+                        carry = 1; 
+                    }
+                }
+            } 
+        } 
+
+        if (carry)
+        {
+            char_push(n1, carry); 
+        }
+    }
 }

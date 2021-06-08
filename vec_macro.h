@@ -1,9 +1,19 @@
-#define VEC_CREATE(TYPE) \
+#ifndef VEC_MACRO_H
+#define VEC_MACRO_H
+
+#define VEC_DEFINE(TYPE) \
     typedef struct TYPE##_Vec {\
         TYPE * arr;\
         int size;\
         int capacity;\
     } TYPE##_vec;\
+    TYPE##_vec * TYPE##_vinit(int start_cap); \
+    void TYPE##_push(TYPE##_vec *vec, TYPE val); \
+    TYPE TYPE##_pop(TYPE##_vec *vec); \
+    void TYPE##_vfree(TYPE##_vec *vec); \
+    TYPE TYPE##_peek(TYPE##_vec *vec);
+
+#define VEC_CREATE(TYPE) \
     TYPE##_vec * TYPE##_vinit(int start_cap) {\
         TYPE##_vec *vec = (TYPE##_vec *) malloc(sizeof(TYPE##_vec)); \
         vec->arr = (TYPE *) malloc(start_cap * sizeof(TYPE));\
@@ -88,3 +98,4 @@
         }\
         return vec->arr[0];\
     }
+#endif
