@@ -8,6 +8,7 @@
 #include <assert.h>
 
 #define MAX_LOAD 0.75
+#define MIN_LOAD 0.1
 #define DEFAULT_CAPACITY 10
 #define TABLE_REALLOC_FACTOR 4
 #define MAX_LONG_STRING_LENGTH 21
@@ -32,7 +33,7 @@ bool is_prime(unsigned long x);
 
 unsigned long nearest_prime(unsigned long x);
 
-void hash_table_realloc(hash_table_t table);
+void hash_table_realloc(hash_table_t table, unsigned long new_capacity);
 
 void *hash_table_add(hash_table_t table, const char *key, void *val);
 

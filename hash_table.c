@@ -40,6 +40,7 @@ bool is_prime(unsigned long x) {
 }
 
 unsigned long nearest_prime(unsigned long x) {
+    if (x < 2) return 2;
     unsigned long res;
     for (res = x; ; res++) {
         if (is_prime(res))
@@ -48,8 +49,8 @@ unsigned long nearest_prime(unsigned long x) {
     return res;
 }
 
-void hash_table_realloc(hash_table_t table) {
-    unsigned long new_capacity = nearest_prime(table->capacity * TABLE_REALLOC_FACTOR);
+void hash_table_realloc(hash_table_t table, unsigned long new_capacity) {
+    assert(new_capacity >= table->size);
     kv_pair_t *new_boxes = calloc(new_capacity, sizeof(kv_pair_t));
     for (unsigned long i = 0; i < table->capacity; i++) {
         if (table->boxes[i] != NULL) {
@@ -89,7 +90,7 @@ void *hash_table_add(hash_table_t table, const char *key, void *val) {
 
     double load = ((double) table->size) / (double) table->capacity;
     if (load > MAX_LOAD)
-        hash_table_realloc(table);
+        hash_table_realloc(table, nearest_prime(table->capacity * TABLE_REALLOC_FACTOR));
 
     return res;
 }
@@ -113,7 +114,7 @@ void *hash_table_add_owned(hash_table_t table, char *key, void *val) {
 
     double load = ((double) table->size) / (double) table->capacity;
     if (load > MAX_LOAD)
-        hash_table_realloc(table);
+        hash_table_realloc(table, nearest_prime(table->capacity * TABLE_REALLOC_FACTOR));
 
     return res;
 }
@@ -194,6 +195,10 @@ void *hash_table_remove(hash_table_t table, const char *key) {
         hash_table_add_owned(table, tkey, val);
         i = (i + 1) % table->capacity;
     }
+
+    double load = ((double) table->size) / (double) table->capacity;
+    if (load < MIN_LOAD)
+        hash_table_realloc(table, nearest_prime(table->size + table->size / 2));
 
     return res;
 }
@@ -286,4 +291,9 @@ void benchmark() {
         printf("%d: %lf %lf\n", lengths[i],
                (double)times[i][0] / (double)NUM_BENCH_TRIES,
                (double)times[i][1] / (double)NUM_BENCH_TRIES);
+}
+
+int main(void) {
+    tests();
+    benchmark();
 }
