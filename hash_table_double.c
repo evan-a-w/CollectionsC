@@ -6,7 +6,6 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <sys/time.h>
-#include <math.h>
 
 #define NUM_BENCH 100000
 #define NUM_BENCH_NUMS 9
@@ -23,6 +22,10 @@ unsigned long hash(const char *str) {
     return hash;
 }
 
+unsigned long hash2(const char *str, unsigned long cap) {
+    return ((hash(str) << 2) % (cap - 1)) + 1;
+}
+
 void *kv_pair_delete(kv_pair_t p) {
     free(p->key);
     void *val = p->val;
@@ -30,9 +33,9 @@ void *kv_pair_delete(kv_pair_t p) {
     return val;
 }
 
+// Can be MUCH better - dont wanna -lm for sqrt
 bool is_prime(unsigned long x) {
-    unsigned long lim = floor(sqrt(x));
-    for (unsigned long i = 2; i <= lim; i++) {
+    for (unsigned long i = 2; i < x; i++) {
         if (x % i == 0)
             return false;
     }
@@ -56,9 +59,10 @@ void hash_table_realloc(hash_table_t table) {
         if (table->boxes[i] != NULL) {
             char *key = table->boxes[i]->key;
             unsigned long hashed = hash(key);
+            unsigned long inc = hash2(key, new_capacity);
             unsigned long index = hashed % new_capacity;
             int j;
-            for (j = index; new_boxes[j]; j = (j + 1) % new_capacity)
+            for (j = index; new_boxes[j]; j = (j + inc) % new_capacity)
                 ;
             new_boxes[j] = table->boxes[i];
         }
@@ -74,10 +78,13 @@ void hash_table_realloc(hash_table_t table) {
 void *hash_table_add(hash_table_t table, const char *key, void *val) {
     table->size++;
     unsigned long hashed = hash(key);
+    unsigned long inc = hash2(key, table->capacity);
     unsigned long index = hashed % table->capacity;
+    bool *visited = calloc(table->capacity, sizeof(bool));
     void *res = NULL;
     int i;
-    for (i = index; table->boxes[i]; i = (i + 1) % table->capacity) {
+    for (i = index; table->boxes[i]; i = (i + inc) % table->capacity) {
+        visited[i] = true;
         if (strcmp(table->boxes[i]->key, key) == 0) {
             res = kv_pair_delete(table->boxes[i]);
             table->size--;
@@ -93,6 +100,7 @@ void *hash_table_add(hash_table_t table, const char *key, void *val) {
     if (load > MAX_LOAD)
         hash_table_realloc(table);
 
+    free(visited);
     return res;
 }
 
@@ -131,15 +139,22 @@ void *hash_table_remove_long(hash_table_t table, long x) {
 
 void *hash_table_find(hash_table_t table, const char *key) {
     unsigned long hashed = hash(key);
+    unsigned long inc = hash2(key, table->capacity);
     unsigned long index = hashed % table->capacity;
 
+    bool *visited = calloc(table->capacity, sizeof(bool));
 
-    for (int i = index; table->boxes[i]; i = (i + 1) % table->capacity) {
-        if (strcmp(table->boxes[i]->key, key) == 0) {
-            return table->boxes[i]->val;
+    for (int i = index; !visited[i]; i = (i + inc) % table->capacity) {
+        visited[i] = true;
+        if (table->boxes[i]) {
+            if (strcmp(table->boxes[i]->key, key) == 0) {
+                free(visited);
+                return table->boxes[i]->val;
+            }
         }
     }
 
+    free(visited);
     return NULL;
 }
 
@@ -151,18 +166,25 @@ void *hash_table_find_long(hash_table_t table, long x) {
 
 void *hash_table_remove(hash_table_t table, const char *key) {
     unsigned long hashed = hash(key);
+    unsigned long inc = hash2(key, table->capacity);
     unsigned long index = hashed % table->capacity;
 
+    bool *visited = calloc(table->capacity, sizeof(bool));
 
-    for (int i = index; table->boxes[i]; i = (i + 1) % table->capacity) {
-        if (strcmp(table->boxes[i]->key, key) == 0) {
-            table->size--;
-            kv_pair_t p = table->boxes[i];
-            table->boxes[i] = NULL;
-            return kv_pair_delete(p);
+    for (int i = index; !visited[i]; i = (i + inc) % table->capacity) {
+        visited[i] = true;
+        if (table->boxes[i]) {
+            if (strcmp(table->boxes[i]->key, key) == 0) {
+                table->size--;
+                free(visited);
+                kv_pair_t p = table->boxes[i];
+                table->boxes[i] = NULL;
+                return kv_pair_delete(p);
+            }
         }
     }
 
+    free(visited);
     return NULL;
 }
 
