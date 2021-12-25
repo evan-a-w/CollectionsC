@@ -10,7 +10,7 @@
 
 #define NUM_BENCH 1000000
 #define NUM_BENCH_NUMS 10
-#define NUM_BENCH_TRIES 5
+#define NUM_BENCH_TRIES 3
 
 // from https://stackoverflow.com/questions/7666509/hash-function-for-string
 unsigned long hash(const char *str) {

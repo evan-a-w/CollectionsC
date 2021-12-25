@@ -7,10 +7,10 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define MAX_LOAD 0.75
-#define MIN_LOAD 0.1
+#define MAX_LOAD 0.9
+#define MIN_LOAD 0.3
 #define DEFAULT_CAPACITY 10
-#define TABLE_REALLOC_FACTOR 4
+#define TABLE_REALLOC_FACTOR 3
 #define MAX_LONG_STRING_LENGTH 21
 
 // from https://stackoverflow.com/questions/7666509/hash-function-for-string
