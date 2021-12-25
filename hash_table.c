@@ -51,7 +51,6 @@ unsigned long nearest_prime(unsigned long x) {
 void hash_table_realloc(hash_table_t table) {
     unsigned long new_capacity = nearest_prime(table->capacity * TABLE_REALLOC_FACTOR);
     kv_pair_t *new_boxes = calloc(new_capacity, sizeof(kv_pair_t));
-    bool *visited = malloc(table->capacity * sizeof(bool));
     for (unsigned long i = 0; i < table->capacity; i++) {
         if (table->boxes[i] != NULL) {
             char *key = table->boxes[i]->key;
@@ -63,7 +62,6 @@ void hash_table_realloc(hash_table_t table) {
             new_boxes[j] = table->boxes[i];
         }
     }
-    free(visited);
     free(table->boxes);
     table->boxes = new_boxes;
     table->capacity = new_capacity;

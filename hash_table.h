@@ -15,8 +15,6 @@
 // from https://stackoverflow.com/questions/7666509/hash-function-for-string
 unsigned long hash(const char *str);
 
-unsigned long hash2(const char *str, unsigned long cap);
-
 typedef struct KvPair {
     char *key;
     void *val;

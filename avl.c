@@ -108,7 +108,6 @@ AVL AVLInsert(AVL t, Item x, int (*compare)(Item a, Item b))
         }
         else if (cmp < 0)
         {
-            int cd = height(t->left) - height(t->right);
             int cl = (t->left) ? (t->left->v) : 0;
             t->left = AVLInsert(t->left, x, compare);
             t->height = MAX(height(t->left), height(t->right)) + 1;
@@ -122,7 +121,6 @@ AVL AVLInsert(AVL t, Item x, int (*compare)(Item a, Item b))
         }
         else
         {
-            int cd = height(t->right) - height(t->left);
             int cl = (t->right) ? (t->right->v) : 0;
             t->right = AVLInsert(t->right, x, compare);
             t->height = MAX(height(t->left), height(t->right)) + 1;
@@ -141,43 +139,9 @@ AVL AVLInsert(AVL t, Item x, int (*compare)(Item a, Item b))
     }
 }
 
-AVL 
-
-AVL AVLDelete(AVL t, Item x, int (*compare)(Item a, Item b));
+AVL AVLDelete(AVL t, Item x, int (*compare)(Item a, Item b))
 {
-    if (t != NULL)
-    {
-        int cmp = compare(x, t->v);
-        if (cmp == 0)
-        {
-            if (t->left == NULL && t->right == NULL)
-            {
-                free(t);    
-                return NULL;
-            }
-            else if (t->left && t->right)
-            {
-                AVL inorder_successor = tree_min(t->right);
-                free()
-                t->self = inorder_successor;
-                t->right = tree_delete_forced(t->right, t->self->prefix->chars);
-                return t;
-            }
-            else
-            {
-                tree child = (t->left) ? t->left : t->right;
-                node_free(t->self);
-                free(t);
-                return child;
-            }
-        }
-        else if (cmp < 0)
-            t->left = tree_delete_forced(t->left, name);
-        else
-            t->right = tree_delete_forced(t->right, name);
-        return t;
-    }
-    return NULL;
+    return t;
 }
 
 void AVLFree(AVL t);
