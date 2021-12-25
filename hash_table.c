@@ -96,6 +96,30 @@ void *hash_table_add(hash_table_t table, const char *key, void *val) {
     return res;
 }
 
+void *hash_table_add_owned(hash_table_t table, char *key, void *val) {
+    table->size++;
+    unsigned long hashed = hash(key);
+    unsigned long index = hashed % table->capacity;
+    void *res = NULL;
+    int i;
+    for (i = index; table->boxes[i]; i = (i + 1) % table->capacity) {
+        if (strcmp(table->boxes[i]->key, key) == 0) {
+            res = kv_pair_delete(table->boxes[i]);
+            table->size--;
+            break;
+        }
+    }
+    table->boxes[i] = malloc(sizeof(struct KvPair));
+    table->boxes[i]->key = key;
+    table->boxes[i]->val = val;
+
+    double load = ((double) table->size) / (double) table->capacity;
+    if (load > MAX_LOAD)
+        hash_table_realloc(table);
+
+    return res;
+}
+
 hash_table_t hash_table_new() {
     hash_table_t table = malloc(sizeof(struct HashTable));
     table->size = 0;
@@ -129,41 +153,59 @@ void *hash_table_remove_long(hash_table_t table, long x) {
     return hash_table_remove(table, key);
 }
 
-void *hash_table_find(hash_table_t table, const char *key) {
+kv_pair_t hash_table_find(hash_table_t table, const char *key) {
     unsigned long hashed = hash(key);
     unsigned long index = hashed % table->capacity;
 
 
     for (int i = index; table->boxes[i]; i = (i + 1) % table->capacity) {
         if (strcmp(table->boxes[i]->key, key) == 0) {
-            return table->boxes[i]->val;
+            return table->boxes[i];
         }
     }
 
     return NULL;
 }
 
-void *hash_table_find_long(hash_table_t table, long x) {
+kv_pair_t hash_table_find_long(hash_table_t table, long x) {
     char key[MAX_LONG_STRING_LENGTH];
     snprintf(key, MAX_LONG_STRING_LENGTH, "%ld", x);
     return hash_table_find(table, key);
 }
 
 void *hash_table_remove(hash_table_t table, const char *key) {
-    unsigned long hashed = hash(key);
-    unsigned long index = hashed % table->capacity;
+    int i = hash(key) % table->capacity;
+    for (;;) {
+        if (table->boxes[i] == NULL)
+            return NULL;
+        if (strcmp(table->boxes[i]->key, key) == 0)
+            break;
+        i = (i + 1) % table->capacity;
+    }
+    void *res = kv_pair_delete(table->boxes[i]);
+    table->boxes[i] = NULL;
+    table->size--;
 
-
-    for (int i = index; table->boxes[i]; i = (i + 1) % table->capacity) {
-        if (strcmp(table->boxes[i]->key, key) == 0) {
-            table->size--;
-            kv_pair_t p = table->boxes[i];
-            table->boxes[i] = NULL;
-            return kv_pair_delete(p);
-        }
+    i = (i + 1) % table->capacity;
+    while (table->boxes[i]) {
+        void *val = table->boxes[i]->val;
+        char *tkey = table->boxes[i]->key;
+        free(table->boxes[i]);
+        table->boxes[i] = NULL;
+        table->size--;
+        hash_table_add_owned(table, tkey, val);
+        i = (i + 1) % table->capacity;
     }
 
-    return NULL;
+    return res;
+}
+
+void hash_table_print_all(hash_table_t table) {
+    for (int i = 0; i < table->capacity; i++) {
+        if (table->boxes[i] != NULL) {
+            printf("%s: %p\n", table->boxes[i]->key, table->boxes[i]->val);
+        }
+    }
 }
 
 void tests() {
@@ -171,8 +213,8 @@ void tests() {
     hash_table_add(table, "hello", "world");
     hash_table_add(table, "goodbye", (void*)1);
 
-    assert(strcmp(hash_table_find(table, "hello"), "world") == 0);
-    assert((long) hash_table_find(table, "goodbye") == 1);
+    assert(strcmp(hash_table_find(table, "hello")->val, "world") == 0);
+    assert((long) hash_table_find(table, "goodbye")->val == 1);
     assert(hash_table_find(table, "not there") == NULL);
 
     hash_table_remove(table, "hello");
@@ -190,7 +232,7 @@ void tests() {
     }
 
     for (unsigned long i = 0; i < 100; i++) {
-        assert((long) hash_table_find_long(table, i) == i);
+        assert((long) hash_table_find_long(table, i)->val == i);
     }
 
     for (unsigned long i = 0; i < 100; i++) {
@@ -249,5 +291,6 @@ void benchmark() {
 }
 
 int main(void) {
+    tests();
     benchmark();
 }

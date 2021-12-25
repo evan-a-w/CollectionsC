@@ -38,6 +38,8 @@ void hash_table_realloc(hash_table_t table);
 
 void *hash_table_add(hash_table_t table, const char *key, void *val);
 
+void *hash_table_add_owned(hash_table_t table, char *key, void *val);
+
 hash_table_t hash_table_new();
 
 void hash_table_free(hash_table_t table);
@@ -46,9 +48,9 @@ void hash_table_add_long(hash_table_t table, long x, void *val);
 
 void *hash_table_remove_long(hash_table_t table, long x);
 
-void *hash_table_find(hash_table_t table, const char *key);
+kv_pair_t hash_table_find(hash_table_t table, const char *key);
 
-void *hash_table_find_long(hash_table_t table, long x);
+kv_pair_t hash_table_find_long(hash_table_t table, long x);
 
 void *hash_table_remove(hash_table_t table, const char *key);
 
