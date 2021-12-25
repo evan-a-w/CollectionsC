@@ -289,8 +289,3 @@ void benchmark() {
                (double)times[i][0] / (double)NUM_BENCH_TRIES,
                (double)times[i][1] / (double)NUM_BENCH_TRIES);
 }
-
-int main(void) {
-    tests();
-    benchmark();
-}
