@@ -36,6 +36,7 @@ bool is_prime(unsigned long x) {
 }
 
 unsigned long nearest_prime(unsigned long x) {
+    if (x < 2) return 2;
     unsigned long res;
     for (res = x; ; res++) {
         if (is_prime(res))
@@ -44,8 +45,7 @@ unsigned long nearest_prime(unsigned long x) {
     return res;
 }
 
-void long_table_realloc(long_table_t table) {
-    unsigned long new_capacity = nearest_prime(table->capacity * TABLE_REALLOC_FACTOR);
+void long_table_realloc(long_table_t table, unsigned long new_capacity) {
     kvl_pair_t *new_boxes = calloc(new_capacity, sizeof(kvl_pair_t));
     for (unsigned long i = 0; i < table->capacity; i++) {
         if (table->boxes[i] != NULL) {
@@ -84,7 +84,7 @@ void *long_table_add(long_table_t table, unsigned long key, void *val) {
 
     double load = ((double) table->size) / (double) table->capacity;
     if (load > MAX_LOAD)
-        long_table_realloc(table);
+        long_table_realloc(table, nearest_prime(table->capacity * TABLE_REALLOC_FACTOR));
 
     return res;
 }
@@ -146,6 +146,10 @@ void *long_table_remove(long_table_t table, unsigned long key) {
         long_table_add(table, tkey, val);
         i = (i + 1) % table->capacity;
     }
+
+    double load = ((double) table->size) / (double) table->capacity;
+    if (load < MIN_LOAD)
+        long_table_realloc(table, nearest_prime(table->size + table->size / 2));
 
     return res;
 }
