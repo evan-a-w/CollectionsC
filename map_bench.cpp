@@ -19,7 +19,7 @@ char *random_string(int len) {
 
 void benchmark() {
     unsigned long times[NUM_BENCH_NUMS][2] = {0};
-    int lengths[] = {50, 100, 500, 1000, 5000, 10000, 20000, 50000, 100000};
+    int lengths[] = {50, 100, 500, 1000, 5000, 10000, 20000, 50000, 100000, 1000000};
     struct timeval before, after;
     for (int k = 0; k < NUM_BENCH_TRIES; k++) {
         srand(696969);
@@ -51,7 +51,6 @@ void benchmark() {
         printf("%d: %lf %lf\n", lengths[i],
                (double)times[i][0] / (double)NUM_BENCH_TRIES,
                (double)times[i][1] / (double)NUM_BENCH_TRIES);
-
 }
 
 int main(void) {
